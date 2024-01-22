@@ -27,16 +27,10 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.registry }}/${{ env.IMAGE_NAME }}
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
         platforms: "linux/arm64,linux/amd64"
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: "latest"
