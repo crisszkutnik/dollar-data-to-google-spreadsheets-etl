@@ -1,0 +1,19 @@
+name: Push Docker image
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . -t ghcr.io/crisszkutnik/dollar-data-to-google-spreadsheets-etl:$(date +%s)
+    - name: Create tag
+      run: docker image tag ghcr.io/crisszkutnik/dollar-data-to-google-spreadsheets-etl:$(date +%s) ghcr.io/crisszkutnik/dollar-data-to-google-spreadsheets-etl:latest
+    - name: Push image
+      run: docker image push --all-tags ghcr.io/crisszkutnik/dollar-data-to-google-spreadsheets-etl:$(date +%s)
