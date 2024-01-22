@@ -6,17 +6,18 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  TIMESTAMP: $(date +%s)
+  IMAGE_NAME: ghcr.io/crisszkutnik/dollar-data-to-google-spreadsheets-etl
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    env:
-      Timestamp: $(date +%s)
-      Image_Name: ghcr.io/crisszkutnik/dollar-data-to-google-spreadsheets-etl
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . -t ${{ Image_Name }}:${{ Timestamp }}
+      run: docker build . -t ${{ IMAGE_NAME }}:${{ TIMESTAMP }}
     - name: Create tag
-      run: docker image tag ${{ Image_Name }}:${{ Timestamp }} ${{ Image_Name }}:latest
+      run: docker image tag ${{ IMAGE_NAME }}:${{ TIMESTAMP }} ${{ IMAGE_NAME }}:latest
     - name: Push image
-      run: docker image push --all-tags ${{ Image_Name }}:${{ Timestamp }}
+      run: docker image push --all-tags ${{ IMAGE_NAME }}:${{ TIMESTAMP }}
