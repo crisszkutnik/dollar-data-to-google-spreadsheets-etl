@@ -16,8 +16,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . -t ${{ IMAGE_NAME }}:${{ TIMESTAMP }}
+      run: docker build . -t ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
     - name: Create tag
-      run: docker image tag ${{ IMAGE_NAME }}:${{ TIMESTAMP }} ${{ IMAGE_NAME }}:latest
+      run: docker image tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:latest
     - name: Push image
-      run: docker image push --all-tags ${{ IMAGE_NAME }}:${{ TIMESTAMP }}
+      run: docker image push --all-tags ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
