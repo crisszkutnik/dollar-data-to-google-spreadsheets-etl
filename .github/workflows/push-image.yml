@@ -21,4 +21,4 @@ jobs:
     - name: Create tag
       run: docker image tag ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }} ${{ env.IMAGE_NAME }}:latest
     - name: Push image
-      run: docker image push --all-tags ${{ env.IMAGE_NAME }}:${{ env.TIMESTAMP }}
+      run: docker image push --all-tags ${{ env.IMAGE_NAME }}:latest
