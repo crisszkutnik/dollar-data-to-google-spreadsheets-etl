@@ -38,4 +38,5 @@ jobs:
         context: .
         push: true
         platforms: "linux/arm64,linux/amd64"
-        tags: "${{ env.TIMESTAMP }},latest"
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
