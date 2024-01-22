@@ -1,8 +1,8 @@
-import moment from "moment";
 import type { SpreadsheetService } from "./spreadsheetService";
 import type { AllDollarData, DollarData } from "./types/dollarData.type";
 import type { RawRow } from "./types/rawRow.interface";
 import { getDollarDataFromHistory } from "./helpers/getDollarDataFromHistory";
+import moment from "moment-timezone";
 
 const DAY_IN_MS = 8.64e7;
 
@@ -18,6 +18,11 @@ export class DollarDataService {
     const datesToAdd = this.getDatesToAppend(lastLoadedRow);
 
     console.log(`Dates to append: ${datesToAdd}`);
+
+    if (datesToAdd.length === 0) {
+      console.log("No dates to append. Terminating");
+      return;
+    }
 
     const rows = this.generateRows(dollarData, datesToAdd, lastLoadedRow);
 
@@ -92,18 +97,35 @@ export class DollarDataService {
   }
 
   getDatesToAppend(lastLoadedRow: RawRow) {
-    const lastDateAsMoment = moment(lastLoadedRow.Fecha, "DD/MM/YYYY");
-
-    const dates = [];
     const today = moment().format("DD/MM/YYYY");
 
+    if (lastLoadedRow.Fecha > today) {
+      throw new Error("Can't append data of days that are after today");
+    }
+
+    if (lastLoadedRow.Fecha === today) {
+      return [];
+    }
+
+    const lastDateAsMoment = moment(lastLoadedRow.Fecha, "DD/MM/YYYY");
     let d = moment(lastDateAsMoment.toDate().getTime() + DAY_IN_MS);
+
+    const dates = [];
 
     dates.push(d.format("DD/MM/YYYY"));
 
     do {
       d.add(DAY_IN_MS);
-      dates.push(d.format("DD/MM/YYYY"));
+
+      const formattedDate = d.format("DD/MM/YYYY");
+
+      if (formattedDate > today) {
+        throw new Error(
+          `Trying to append data of a day that is after today. Tried to append data of ${formattedDate} but today is ${today}`
+        );
+      }
+
+      dates.push(formattedDate);
     } while (d.format("DD/MM/YYYY") !== today);
 
     return dates;

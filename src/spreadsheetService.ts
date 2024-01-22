@@ -4,7 +4,12 @@ import {
   GoogleSpreadsheetWorksheet,
 } from "google-spreadsheet";
 import type { RawRow } from "./types/rawRow.interface";
-import { SERVICE_ACCOUNT_EMAIL, SERVICE_ACCOUNT_KEY, SHEET_ID } from "./config";
+import {
+  KEY_BASE64,
+  SERVICE_ACCOUNT_EMAIL,
+  SERVICE_ACCOUNT_KEY,
+  SHEET_ID,
+} from "./config";
 
 export class SpreadsheetService {
   private doc: GoogleSpreadsheet;
@@ -15,7 +20,9 @@ export class SpreadsheetService {
   constructor() {
     const auth = new JWT({
       email: SERVICE_ACCOUNT_EMAIL,
-      key: SERVICE_ACCOUNT_KEY,
+      key: KEY_BASE64
+        ? Buffer.from(SERVICE_ACCOUNT_KEY, "base64").toString()
+        : SERVICE_ACCOUNT_KEY,
       scopes: [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive.file",
