@@ -97,6 +97,44 @@ export class DollarDataService {
   }
 
   getDatesToAppend(lastLoadedRow: RawRow) {
+    const todayAsISO = moment().format("YYYY-MM-DD");
+
+    const lastDateAsMoment = moment(lastLoadedRow.Fecha, "DD/MM/YYYY");
+    const lastDateAsISO = lastDateAsMoment.format("YYYY-MM-DD");
+
+    if (lastDateAsISO > todayAsISO) {
+      throw new Error("Can't append data of days that are after today");
+    }
+
+    if (lastDateAsISO === todayAsISO) {
+      return [];
+    }
+
+    let d = moment(lastDateAsMoment.toDate().getTime() + DAY_IN_MS);
+
+    const dates = [];
+
+    dates.push(d.format("DD/MM/YYYY"));
+
+    let formattedDateISO: string;
+    do {
+      d.add(DAY_IN_MS);
+
+      formattedDateISO = d.format("YYYY-MM-DD");
+
+      if (formattedDateISO > todayAsISO) {
+        throw new Error(
+          `Trying to append data of a day that is after today. Tried to append data of ${formattedDateISO} but today is ${todayAsISO}`
+        );
+      }
+
+      dates.push(d.format("DD/MM/YYYY"));
+    } while (formattedDateISO !== todayAsISO);
+
+    return dates;
+  }
+
+  /*getDatesToAppend(lastLoadedRow: RawRow) {
     const today = moment().format("DD/MM/YYYY");
 
     if (lastLoadedRow.Fecha > today) {
@@ -129,5 +167,5 @@ export class DollarDataService {
     } while (d.format("DD/MM/YYYY") !== today);
 
     return dates;
-  }
+  }*/
 }
