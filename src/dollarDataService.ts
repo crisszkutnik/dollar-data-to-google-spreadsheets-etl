@@ -133,39 +133,4 @@ export class DollarDataService {
 
     return dates;
   }
-
-  /*getDatesToAppend(lastLoadedRow: RawRow) {
-    const today = moment().format("DD/MM/YYYY");
-
-    if (lastLoadedRow.Fecha > today) {
-      throw new Error("Can't append data of days that are after today");
-    }
-
-    if (lastLoadedRow.Fecha === today) {
-      return [];
-    }
-
-    const lastDateAsMoment = moment(lastLoadedRow.Fecha, "DD/MM/YYYY");
-    let d = moment(lastDateAsMoment.toDate().getTime() + DAY_IN_MS);
-
-    const dates = [];
-
-    dates.push(d.format("DD/MM/YYYY"));
-
-    do {
-      d.add(DAY_IN_MS);
-
-      const formattedDate = d.format("DD/MM/YYYY");
-
-      if (formattedDate > today) {
-        throw new Error(
-          `Trying to append data of a day that is after today. Tried to append data of ${formattedDate} but today is ${today}`
-        );
-      }
-
-      dates.push(formattedDate);
-    } while (d.format("DD/MM/YYYY") !== today);
-
-    return dates;
-  }*/
 }
