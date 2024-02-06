@@ -110,14 +110,12 @@ export class DollarDataService {
       return [];
     }
 
-    let d = moment(lastDateAsMoment.toDate().getTime());
+    const d = moment(lastDateAsMoment.toDate().getTime() + DAY_IN_MS);
 
     const dates = [];
 
     let formattedDateISO: string;
     do {
-      d.add(DAY_IN_MS);
-
       formattedDateISO = d.format("YYYY-MM-DD");
 
       if (formattedDateISO > todayAsISO) {
@@ -127,6 +125,7 @@ export class DollarDataService {
       }
 
       dates.push(d.format("DD/MM/YYYY"));
+      d.add(DAY_IN_MS);
     } while (formattedDateISO !== todayAsISO);
 
     return dates;
