@@ -110,11 +110,9 @@ export class DollarDataService {
       return [];
     }
 
-    let d = moment(lastDateAsMoment.toDate().getTime() + DAY_IN_MS);
+    let d = moment(lastDateAsMoment.toDate().getTime());
 
     const dates = [];
-
-    dates.push(d.format("DD/MM/YYYY"));
 
     let formattedDateISO: string;
     do {
