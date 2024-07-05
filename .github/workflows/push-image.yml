@@ -9,6 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -39,3 +40,10 @@ jobs:
         push: true
         platforms: linux/arm64,linux/amd64
         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+    - name: Delete untagged
+      uses: actions/delete-package-versions@v5
+      with:
+        package-name: ${{ env.REPOSITORY_NAME }}
+        package-type: 'container'
+        min-versions-to-keep: 0
+        delete-only-untagged-versions: true
