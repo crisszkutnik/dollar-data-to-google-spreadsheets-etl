@@ -12,7 +12,6 @@ async function main() {
   const notificationService = new NotificationService();
 
   try {
-    throw new Error("adasdas");
     const spreadsheetService = new SpreadsheetService();
 
     initPromises.push(spreadsheetService.init());
