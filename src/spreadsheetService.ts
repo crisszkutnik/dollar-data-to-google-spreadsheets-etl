@@ -15,8 +15,6 @@ export class SpreadsheetService {
   private doc: GoogleSpreadsheet;
   private sheet: GoogleSpreadsheetWorksheet | undefined = undefined;
 
-  private lastRowIdx: number = -1;
-
   constructor() {
     const auth = new JWT({
       email: SERVICE_ACCOUNT_EMAIL,
@@ -53,19 +51,27 @@ export class SpreadsheetService {
     return row;
   }
 
+  async getLastTwoRows() {
+    const rows = await this.sheet?.getRows({
+      offset: this.getLastRowIdx() - 1,
+    });
+
+    if (!rows) {
+      throw new Error("Fatal error fetching last two rows");
+    }
+
+    return rows.map((r) => r.toObject()) as [RawRow, RawRow];
+  }
+
   async addRows(rows: RawRow[]) {
-    this.sheet?.addRows(rows as any[]);
+    await this.sheet?.addRows(rows as any[]);
   }
 
   private getLastRowIdx() {
-    if (this.lastRowIdx === -1) {
-      if (this.sheet === undefined) {
-        throw new Error("Sheet is not initialized");
-      }
-
-      this.lastRowIdx = this.sheet.rowCount - 2;
+    if (this.sheet === undefined) {
+      throw new Error("Sheet is not initialized");
     }
 
-    return this.lastRowIdx;
+    return this.sheet.rowCount - 2;
   }
 }

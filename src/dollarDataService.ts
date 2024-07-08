@@ -1,13 +1,18 @@
 import type { SpreadsheetService } from "./spreadsheetService";
-import type { AllDollarData, DollarData } from "./types/dollarData.type";
+import type { AllDollarData, AmbitoDollarData } from "./types/dollarData.type";
 import type { RawRow } from "./types/rawRow.interface";
 import { getDollarDataFromHistory } from "./helpers/getDollarDataFromHistory";
 import moment from "moment-timezone";
+import { sheetsNumberToJsFloat } from "./helpers/sheetsNumberToJsNumber";
+import type { DollarData, NotificationService } from "./notificationService";
 
 const DAY_IN_MS = 8.64e7;
 
 export class DollarDataService {
-  constructor(private readonly spreadsheetService: SpreadsheetService) {}
+  constructor(
+    private readonly spreadsheetService: SpreadsheetService,
+    private readonly notificationService: NotificationService
+  ) {}
 
   async appendDollarData() {
     const [lastLoadedRow, dollarData] = await Promise.all([
@@ -27,11 +32,26 @@ export class DollarDataService {
     const rows = this.generateRows(dollarData, datesToAdd, lastLoadedRow);
 
     console.log("Rows generated");
-    console.log(rows);
+    console.log(JSON.stringify(rows));
 
     await this.spreadsheetService.addRows(rows);
 
     console.log("Rows appended succesfully");
+
+    await this.sendSuccessNotification();
+  }
+
+  private async sendSuccessNotification() {
+    const data = (await this.spreadsheetService.getLastTwoRows()).map((d) => ({
+      Oficial: sheetsNumberToJsFloat(d.Oficial),
+      MEP: sheetsNumberToJsFloat(d.MEP),
+      CCL: sheetsNumberToJsFloat(d.CCL),
+      Blue: sheetsNumberToJsFloat(d.Blue),
+    })) as DollarData[];
+
+    const [yesterday, today] = data;
+
+    await this.notificationService.sendSuccessNotification(today, yesterday);
   }
 
   private generateRows(
@@ -73,7 +93,7 @@ export class DollarDataService {
 
     const [Oficial, Blue, MEP, CCL, Cripto] = await Promise.all(
       responses.map(async (r) => {
-        const ret = await (r.json() as Promise<DollarData>);
+        const ret = await (r.json() as Promise<AmbitoDollarData>);
         ret.shift();
 
         const obj = ret.reduce((o, [date, price]) => {

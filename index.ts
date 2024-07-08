@@ -1,6 +1,7 @@
 import moment from "moment-timezone";
 import { DollarDataService } from "./src/dollarDataService";
 import { SpreadsheetService } from "./src/spreadsheetService";
+import { NotificationService } from "./src/notificationService";
 
 async function main() {
   moment.tz.setDefault("America/Buenos_Aires");
@@ -8,17 +9,27 @@ async function main() {
   console.log("Starting services");
   const initPromises = [];
 
-  const spreadsheetService = new SpreadsheetService();
+  const notificationService = new NotificationService();
 
-  initPromises.push(spreadsheetService.init());
+  try {
+    throw new Error("adasdas");
+    const spreadsheetService = new SpreadsheetService();
 
-  const dollarDataService = new DollarDataService(spreadsheetService);
+    initPromises.push(spreadsheetService.init());
 
-  await Promise.all(initPromises);
+    const dollarDataService = new DollarDataService(
+      spreadsheetService,
+      notificationService
+    );
 
-  console.log("All services started");
+    await Promise.all(initPromises);
 
-  dollarDataService.appendDollarData();
+    console.log("All services started");
+
+    dollarDataService.appendDollarData();
+  } catch (e) {
+    notificationService.sendErrorNotification(e);
+  }
 }
 
 main();

@@ -1,4 +1,4 @@
-export type DollarData = [string, number][];
+export type AmbitoDollarData = [string, number][];
 
 export interface AllDollarData {
   Oficial: Record<string, number>;
