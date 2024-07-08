@@ -1,0 +1,29 @@
+name: Create tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      semver:
+        description: "Which semver action to tag with (major | minor | patch)"
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_PERSONAL_ACCESS_TOKEN }}
+      - run: git config --global user.name "GitHub Actions bot"
+      - run: git config --global user.email "<>"
+      - run: git fetch --prune --unshallow --tags
+      - run: npm version ${{ inputs.semver }}
+      - run: git push --follow-tags
