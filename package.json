@@ -12,7 +12,8 @@
     "google-auth-library": "^9.4.2",
     "google-spreadsheet": "^4.1.1",
     "moment": "^2.30.1",
-    "moment-timezone": "^0.5.44"
+    "moment-timezone": "^0.5.44",
+    "prom-client": "^15.1.3"
   },
   "version": "1.1.1"
 }
