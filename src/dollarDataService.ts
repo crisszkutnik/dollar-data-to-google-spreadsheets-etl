@@ -5,38 +5,45 @@ import { getDollarDataFromHistory } from "./helpers/getDollarDataFromHistory";
 import moment from "moment-timezone";
 import { sheetsNumberToJsFloat } from "./helpers/sheetsNumberToJsNumber";
 import type { DollarData, NotificationService } from "./notificationService";
+import { createLogger } from "./helpers/loggerUtils";
 
 const DAY_IN_MS = 8.64e7;
 
 export class DollarDataService {
+  private readonly logger = createLogger(DollarDataService.name);
+
   constructor(
     private readonly spreadsheetService: SpreadsheetService,
     private readonly notificationService: NotificationService
   ) {}
 
   async appendDollarData() {
+    this.logger.info("Fetching required data");
     const [lastLoadedRow, dollarData] = await Promise.all([
       this.spreadsheetService.getLastLoadedRow(),
       this.getDollarData(),
     ]);
 
+    this.logger.info("Fetched all required data");
+
     const datesToAdd = this.getDatesToAppend(lastLoadedRow);
 
-    console.log(`Dates to append: ${datesToAdd}`);
+    this.logger.info(`Dates to append: ${datesToAdd}`);
 
     if (datesToAdd.length === 0) {
-      console.log("No dates to append. Terminating");
+      this.logger.info("No dates to append. Terminating");
+      await this.notificationService.sendNoRowsToAppendNotification();
       return;
     }
 
     const rows = this.generateRows(dollarData, datesToAdd, lastLoadedRow);
 
-    console.log("Rows generated");
-    console.log(JSON.stringify(rows));
+    this.logger.info("Rows generated");
+    this.logger.info(JSON.stringify(rows));
 
     await this.spreadsheetService.addRows(rows);
 
-    console.log("Rows appended succesfully");
+    this.logger.info("Rows appended succesfully");
 
     await this.sendSuccessNotification();
   }
@@ -89,6 +96,8 @@ export class DollarDataService {
       "https://mercados.ambito.com/dolarcripto/grafico/anual",
     ];
 
+    this.logger.info("Fetching dollar data from Ambito");
+
     const responses = await Promise.all(urls.map((u) => fetch(u)));
 
     const [Oficial, Blue, MEP, CCL, Cripto] = await Promise.all(
@@ -105,7 +114,7 @@ export class DollarDataService {
       })
     );
 
-    console.log("Fetched all dollar data from Ambito");
+    this.logger.info("Dollar data retrieved from Ambito");
 
     return {
       Oficial,

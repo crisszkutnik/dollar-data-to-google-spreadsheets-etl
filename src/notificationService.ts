@@ -1,7 +1,9 @@
 import {
   DISCORD_NOTIFICATION_CHANNEL_ID,
+  MAX_ALLOWED_TIME_MS,
   NOTIFICATION_SERVICE_URL,
 } from "./config";
+import { createLogger } from "./helpers/loggerUtils";
 
 export interface DollarData {
   Oficial: number;
@@ -11,15 +13,17 @@ export interface DollarData {
 }
 
 export class NotificationService {
+  private readonly logger = createLogger(NotificationService.name);
+
   constructor() {
     if (!NOTIFICATION_SERVICE_URL) {
-      console.warn(
+      this.logger.warn(
         "NOTIFICATION_SERVICE_URL is not set. No notification will be sent"
       );
     }
 
     if (!DISCORD_NOTIFICATION_CHANNEL_ID) {
-      console.warn(
+      this.logger.warn(
         "DISCORD_NOTIFICATION_CHANNEL_ID is not set. No notification will be sent"
       );
     }
@@ -27,14 +31,14 @@ export class NotificationService {
 
   private async sendDiscordNotification(channelId: string, payload: any) {
     if (!NOTIFICATION_SERVICE_URL) {
-      console.warn(
+      this.logger.warn(
         "NOTIFICATION_SERVICE_URL is not set. No notification will be sent"
       );
       return;
     }
 
     if (!DISCORD_NOTIFICATION_CHANNEL_ID) {
-      console.warn(
+      this.logger.warn(
         "DISCORD_NOTIFICATION_CHANNEL_ID is not set. No notification will be sent"
       );
       return;
@@ -43,13 +47,15 @@ export class NotificationService {
     const endpoint =
       NOTIFICATION_SERVICE_URL + "/notification/discord/" + channelId;
 
-    await fetch(endpoint, {
+    /*await fetch(endpoint, {
       method: "POST",
       body: JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json",
       },
-    });
+    });*/
+
+    this.logger.info(payload);
   }
 
   async sendSuccessNotification(today: DollarData, yesterday: DollarData) {
@@ -94,6 +100,37 @@ export class NotificationService {
         },
       ];
     }
+
+    await this.sendDiscordNotification(DISCORD_NOTIFICATION_CHANNEL_ID, body);
+  }
+
+  async sendNoRowsToAppendNotification() {
+    const body = {
+      content:
+        "⚠️ dollar-price-to-google-sheets run but there was no rows to append ⚠️",
+      embeds: [
+        {
+          type: "rich",
+          description: "The job did run but there were no rows to append",
+          color: 16562691,
+        },
+      ],
+    };
+
+    await this.sendDiscordNotification(DISCORD_NOTIFICATION_CHANNEL_ID, body);
+  }
+
+  async sendTimedOutNotification() {
+    const body = {
+      content: `🛑⏳🛑 dollar-price-to-google-sheets timed out after ${MAX_ALLOWED_TIME_MS}ms 🛑⏳🛑`,
+      embeds: [
+        {
+          type: "rich",
+          description: "The job run but timed out and was stopped",
+          color: 16542467,
+        },
+      ],
+    };
 
     await this.sendDiscordNotification(DISCORD_NOTIFICATION_CHANNEL_ID, body);
   }

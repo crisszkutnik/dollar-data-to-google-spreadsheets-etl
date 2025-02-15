@@ -10,10 +10,12 @@ import {
   SERVICE_ACCOUNT_KEY,
   SHEET_ID,
 } from "./config";
+import { createLogger } from "./helpers/loggerUtils";
 
 export class SpreadsheetService {
   private doc: GoogleSpreadsheet;
   private sheet: GoogleSpreadsheetWorksheet | undefined = undefined;
+  private readonly logger = createLogger(SpreadsheetService.name);
 
   constructor() {
     const auth = new JWT({
@@ -30,9 +32,10 @@ export class SpreadsheetService {
   }
 
   async init() {
+    this.logger.info("Starting SpreadsheetService");
     await this.doc.loadInfo();
     this.sheet = this.doc.sheetsByTitle["Dolar"];
-    console.log("Started SpreadsheetService");
+    this.logger.info("Started SpreadsheetService");
   }
 
   async getLastLoadedRow() {
