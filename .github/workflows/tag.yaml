@@ -14,16 +14,8 @@ on:
 
 jobs:
   tag:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.ACTIONS_PERSONAL_ACCESS_TOKEN }}
-      - run: git config --global user.name "GitHub Actions bot"
-      - run: git config --global user.email "<>"
-      - run: git fetch --prune --unshallow --tags
-      - run: npm version ${{ inputs.semver }}
-      - run: git push --follow-tags
+    uses: crisszkutnik/gh-actions/.github/workflows/tag-js.yaml@main
+    with:
+      semver: ${{ inputs.semver }}
+    secrets:
+      ACTIONS_PERSONAL_ACCESS_TOKEN: ${{ secrets.ACTIONS_PERSONAL_ACCESS_TOKEN }}

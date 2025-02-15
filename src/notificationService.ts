@@ -47,15 +47,13 @@ export class NotificationService {
     const endpoint =
       NOTIFICATION_SERVICE_URL + "/notification/discord/" + channelId;
 
-    /*await fetch(endpoint, {
+    await fetch(endpoint, {
       method: "POST",
       body: JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json",
       },
-    });*/
-
-    this.logger.info(payload);
+    });
   }
 
   async sendSuccessNotification(today: DollarData, yesterday: DollarData) {
